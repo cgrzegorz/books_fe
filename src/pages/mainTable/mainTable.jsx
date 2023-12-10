@@ -1,22 +1,33 @@
 import {useEffect, useState} from "react";
 import axiosInstance from "../../../axios.js";
+import {AddBookModal} from "./addBookModal/addBookModal.jsx";
 
 export const MainTable = () => {
-const [books,setBooks] = useState([]);
-    useEffect(() => {
+
+    const refrestList = () =>{
         axiosInstance.get('/books')
             .then(response => {
                 setBooks(response.data);
-                console.log(response.data)
             })
             .catch(error => {
                 console.error('There was an error!', error);
             });
+    }
+
+
+const [books,setBooks] = useState([]);
+    useEffect(() => {
+        refrestList()
     }, []);
+
+
     return <>
         <div className={"container"}>
             <p className="h1">Books</p>
-            <table className="table">
+            <div className={"d-flex justify-content-end"}>
+                <AddBookModal refrestList={refrestList} />
+            </div>
+            {books.length ? ( <table className="table">
                 <thead>
                 <tr>
                     <th scope="col">#</th>
@@ -25,6 +36,7 @@ const [books,setBooks] = useState([]);
                     <th scope="col">typ</th>
                     <th scope="col">isbn</th>
                     <th scope="col">publisher</th>
+                    <th scope="col">Okładka</th>
                 </tr>
                 </thead>
                 <tbody>
@@ -36,10 +48,12 @@ const [books,setBooks] = useState([]);
                         <td>{el.type}</td>
                         <td>{el.isbn}</td>
                         <td>{el.publisher}</td>
+                        <td>{el.image && (<img width={150} src={`data:image/jpeg;base64,${el.image}`} alt="Obraz"/>)}</td>
                     </tr>
                 })}
                 </tbody>
-            </table>
+            </table>) : (<p>Ładuje</p>)}
+
         </div>
     </>
 }
